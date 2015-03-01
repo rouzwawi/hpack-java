@@ -1,20 +1,19 @@
-package io.rouz;
+package io.rouz.field;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
-import static io.rouz.HeaderFields.HeaderField;
-import static io.rouz.HeaderFields.HeaderFieldType.INDEXED;
-import static io.rouz.HeaderFields.HeaderFieldType.LITERAL_INDEX;
-import static io.rouz.HeaderFields.HeaderFieldType.LITERAL_NEVER_INDEX;
-import static io.rouz.HeaderFields.HeaderFieldType.LITERAL_NO_INDEX;
-import static io.rouz.HeaderFields.HeaderFieldVisitor;
-import static io.rouz.HeaderFields.HeaderName;
-import static io.rouz.HeaderFields.IndexedName;
-import static io.rouz.HeaderFields.LiteralName;
-import static io.rouz.HeaderFields.LiteralValue;
+import static io.rouz.field.HeaderField.HeaderFieldVisitor;
+import static io.rouz.field.HeaderField.IndexedName;
+import static io.rouz.field.HeaderField.LiteralName;
+import static io.rouz.field.HeaderField.LiteralValue;
+import static io.rouz.field.HeaderFieldType.INDEXED;
+import static io.rouz.field.HeaderFieldType.LITERAL_INDEX;
+import static io.rouz.field.HeaderFieldType.LITERAL_NEVER_INDEX;
+import static io.rouz.field.HeaderFieldType.LITERAL_NO_INDEX;
+
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -24,9 +23,9 @@ import static org.junit.Assert.assertThat;
 public class HeaderFieldTest {
 
   @Test
-  public void testName() throws Exception {
+  public void testApi() throws Exception {
     final HeaderName name = HeaderFields.name("foo");
-    final HeaderName indx = HeaderFields.name(1337);
+    final HeaderName indx = HeaderFields.name(42);
 
     /*
      * l[li][inx]
@@ -40,13 +39,13 @@ public class HeaderFieldTest {
      * n = not indexed
      * x = never indexed
      */
-    final HeaderField indexed = HeaderFields.createIndexed(1337);
-    final HeaderField lli = HeaderFields.createIndexed(name, "bar");
-    final HeaderField lii = HeaderFields.createIndexed(indx, "bar");
-    final HeaderField lln = HeaderFields.createNonIndexed(name, "bar");
-    final HeaderField lin = HeaderFields.createNonIndexed(indx, "bar");
-    final HeaderField llx = HeaderFields.createNonIndexed(name, "bar", true);
-    final HeaderField lix = HeaderFields.createNonIndexed(indx, "bar", true);
+    final HeaderField indexed = HeaderFields.indexedField(42);
+    final HeaderField lli = HeaderFields.indexedField(name, "bar");
+    final HeaderField lii = HeaderFields.indexedField(indx, "bar");
+    final HeaderField lln = HeaderFields.nonIndexedField(name, "bar");
+    final HeaderField lin = HeaderFields.nonIndexedField(indx, "bar");
+    final HeaderField llx = HeaderFields.neverIndexedField(name, "bar");
+    final HeaderField lix = HeaderFields.neverIndexedField(indx, "bar");
 
     assertThat(indexed.type(), is(INDEXED));
     assertThat(lli.type(), is(LITERAL_INDEX));
@@ -56,34 +55,32 @@ public class HeaderFieldTest {
     assertThat(llx.type(), is(LITERAL_NEVER_INDEX));
     assertThat(lix.type(), is(LITERAL_NEVER_INDEX));
 
-    assertThat(indexed.type().indexPrefix(), is(7));
-    assertThat(lli.type().indexPrefix(), is(6));
-    assertThat(lii.type().indexPrefix(), is(6));
-    assertThat(lln.type().indexPrefix(), is(4));
-    assertThat(lin.type().indexPrefix(), is(4));
-    assertThat(llx.type().indexPrefix(), is(4));
-    assertThat(lix.type().indexPrefix(), is(4));
+    assertThat(indexed.type().bits(), is(1));
+    assertThat(lli.type().bits(), is(2));
+    assertThat(lii.type().bits(), is(2));
+    assertThat(lln.type().bits(), is(4));
+    assertThat(lin.type().bits(), is(4));
+    assertThat(llx.type().bits(), is(4));
+    assertThat(lix.type().bits(), is(4));
 
-    assertPattern(indexed, index(1337), is(true),  nullValue(), nullValue());
-    assertPattern(lli,     nullValue(), is(false), name("foo"), value("bar"));
-    assertPattern(lii,     index(1337), is(false), nullValue(), value("bar"));
-    assertPattern(lln,     nullValue(), is(false), name("foo"), value("bar"));
-    assertPattern(lin,     index(1337), is(false), nullValue(), value("bar"));
-    assertPattern(llx,     nullValue(), is(false), name("foo"), value("bar"));
-    assertPattern(lix,     index(1337), is(false), nullValue(), value("bar"));
+    assertPattern(indexed, is(true),  index(42), nullValue(), nullValue());
+    assertPattern(lli,     is(false), nullValue(), name("foo"), value("bar"));
+    assertPattern(lii,     is(false), index(42), nullValue(), value("bar"));
+    assertPattern(lln,     is(false), nullValue(), name("foo"), value("bar"));
+    assertPattern(lin,     is(false), index(42), nullValue(), value("bar"));
+    assertPattern(llx,     is(false), nullValue(), name("foo"), value("bar"));
+    assertPattern(lix,     is(false), index(42), nullValue(), value("bar"));
   }
 
   private void assertPattern(
       HeaderField field,
-      Matcher indexedNameMatcher,
-      Matcher indexedFieldMatcher,
-      Matcher literalNameMatcher,
-      Matcher literalValueMatcher) {
+      Matcher indexedFieldMatcher, Matcher indexedNameMatcher,
+      Matcher literalNameMatcher, Matcher literalValueMatcher) {
 
     TestVisitor visitor = new TestVisitor();
     field.visit(visitor);
-    assertThat(visitor.indexedName, indexedNameMatcher);
     assertThat(visitor.indexedField, indexedFieldMatcher);
+    assertThat(visitor.indexedName, indexedNameMatcher);
     assertThat(visitor.literalName, literalNameMatcher);
     assertThat(visitor.literalValue, literalValueMatcher);
   }
