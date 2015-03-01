@@ -5,4 +5,6 @@ Implementation of [HPACK - Header Compression for HTTP/2](http://http2.github.io
 
 ## Status
 
+[![Circle CI](https://circleci.com/gh/rouzwawi/hpack-java.svg?style=svg)](https://circleci.com/gh/rouzwawi/hpack-java)
+
 Currently in development, __do not use__
