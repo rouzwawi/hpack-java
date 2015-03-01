@@ -22,39 +22,56 @@ final class HPackStringImpl implements HuffmanString {
   }
 
   @Override
-  public String decode(byte[] encoded) {
+  public String decode(byte[] encoded) throws HuffmanDecodingError {
     return decode(encoded, 0);
   }
 
   @Override
-  public String decode(byte[] encoded, int pos) {
+  public String decode(byte[] encoded, int pos) throws HuffmanDecodingError {
     if (encoded.length == 0 || (encoded[0] & 0x80) == 0) {
       throw new IllegalArgumentException("No bytes or not huffman encoded string");
     }
 
-    HNode node = CODE_TREE;
     final int stringLength = varInt.decode(7, encoded, pos);
-    int mask = 0x80;
 
-    pos++;
+    HNode node = CODE_TREE;
+    int mask = 0x80;
+    int depth = 0;
+    boolean allOnes = true;
+
+    int off = pos + 1;
 
     final StringBuilder sb = new StringBuilder();
-    while (pos < encoded.length) {
-      node = (encoded[pos] & mask) == 0
-          ? node.c0
-          : node.c1;
+    while (off - pos - 1 < stringLength) {
+      final boolean b = (encoded[off] & mask) != 0;
+
+      depth++;
+      allOnes &= b;
+
+      node = b ? node.c1 : node.c0;
 
       if (node.leaf()) {
         sb.append(node.codepoint);
         node = CODE_TREE;
+        depth = 0;
+        allOnes = true;
       }
 
       mask >>= 1;
       if (mask == 0) {
         mask = 0x80;
-        pos++;
+        off++;
       }
     }
+
+    if (depth > 7) {
+      throw new HuffmanDecodingError("Padding longer than 7 bits found");
+    }
+
+    if (!allOnes) {
+      throw new HuffmanDecodingError("Padding bits do not correspond to EOS");
+    }
+
     return sb.toString();
   }
 
