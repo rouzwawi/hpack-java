@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.Random;
 
+import static io.rouz.Util.printBinary;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -80,20 +81,5 @@ public class VarIntTest {
   @Test(expected = IllegalArgumentException.class)
   public void shouldThrowOnLargePrefix() throws Exception {
     varInt.encode(1337, 9, new byte[8]);
-  }
-
-  private static void printBinary(byte[] number, int bytes) {
-    for (int i = 0; i < bytes; i++) {
-      printBinary(number[i]);
-    }
-  }
-
-  private static void printBinary(final byte b) {
-    int mask = 0x80;
-    for (int i = 0; i < 8; i++) {
-      System.out.print((b & mask) != 0 ? '1' : '0');
-      mask >>= 1;
-    }
-    System.out.println(" | " + String.format("%02X", b).toLowerCase());
   }
 }

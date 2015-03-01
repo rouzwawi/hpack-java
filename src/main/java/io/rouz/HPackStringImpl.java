@@ -1,13 +1,22 @@
 package io.rouz;
 
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
+
 final class HPackStringImpl implements HuffmanString {
 
-  private final HNode CODE_TREE = readCode();
-
   private final VarInt varInt;
+  private final int[] codes;
+  private final byte[] codeLengths;
 
-  HPackStringImpl(final VarInt varInt) {
+  private final HNode treeRoot;
+
+  HPackStringImpl(final VarInt varInt, int[] codes, byte[] codeLengths) {
     this.varInt = varInt;
+    this.codes = codes;
+    this.codeLengths = codeLengths;
+
+    treeRoot = constructTree();
   }
 
   @Override
@@ -23,7 +32,7 @@ final class HPackStringImpl implements HuffmanString {
 
     final int stringLength = varInt.decode(7, encoded, pos);
 
-    HNode node = CODE_TREE;
+    HNode node = treeRoot;
     int mask = 0x80;
     int depth = 0;
     boolean allOnes = true;
@@ -41,7 +50,7 @@ final class HPackStringImpl implements HuffmanString {
 
       if (node.leaf()) {
         sb.append(node.symbol);
-        node = CODE_TREE;
+        node = treeRoot;
         depth = 0;
         allOnes = true;
       }
@@ -64,10 +73,56 @@ final class HPackStringImpl implements HuffmanString {
     return sb.toString();
   }
 
-  private static HNode readCode() {
-    final int[] codes = HuffmanCode.CODES;
-    final byte[] codeLengths = HuffmanCode.CODE_LENGTHS;
+  @Override
+  public byte[] encode(String input) {
+    final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
+    // placeholder for length byte
+    output.write(0);
+
+    try {
+      final byte[] bytes = input.getBytes("US-ASCII");
+
+      long code = 0;
+      int bits = 0;
+
+      for (int i = 0; i < bytes.length; i++) {
+        int b = bytes[i] & 0xff;
+
+        final byte len = codeLengths[b];
+        code <<= len;
+        code |= codes[b];
+        bits += len;
+
+        while (bits >= 8) {
+          bits -= 8;
+          output.write((int) (code >> bits));
+        }
+      }
+
+      if (bits > 0) {
+        code <<= 8 - bits;
+        code |= 0xff >> bits;
+        output.write((int) code);
+      }
+
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+
+    final byte[] bytes = output.toByteArray();
+
+    // huffman bit set
+    bytes[0] |= 0x80;
+
+    // length
+    varInt.encode(bytes.length - 1, 7, bytes);
+
+    return bytes;
+  }
+
+  private HNode constructTree() {
     HNode node = null;
 
     for (int i = 0; i < codes.length; i++) {
