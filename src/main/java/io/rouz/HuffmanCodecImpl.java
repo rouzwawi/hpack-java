@@ -2,7 +2,7 @@ package io.rouz;
 
 import java.io.ByteArrayOutputStream;
 
-final class HPackCodecImpl implements HuffmanCodec {
+final class HuffmanCodecImpl implements HuffmanCodec {
 
   private final VarInt varInt;
   private final int[] codes;
@@ -10,7 +10,7 @@ final class HPackCodecImpl implements HuffmanCodec {
 
   private final HNode treeRoot;
 
-  HPackCodecImpl(final VarInt varInt, int[] codes, byte[] codeLengths) {
+  HuffmanCodecImpl(final VarInt varInt, int[] codes, byte[] codeLengths) {
     this.varInt = varInt;
     this.codes = codes;
     this.codeLengths = codeLengths;

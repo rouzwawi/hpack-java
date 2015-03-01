@@ -6,7 +6,7 @@ package io.rouz;
 public interface HuffmanCodec {
 
   static final HuffmanCodec INSTANCE =
-      new HPackCodecImpl(VarInt.INSTANCE, HuffmanCode.CODES, HuffmanCode.CODE_LENGTHS);
+      new HuffmanCodecImpl(VarInt.INSTANCE, HuffmanCode.CODES, HuffmanCode.CODE_LENGTHS);
 
   byte[] decode(byte[] encoded) throws HuffmanDecodingError;
 
