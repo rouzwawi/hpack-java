@@ -1,4 +1,4 @@
-package io.rouz;
+package io.rouz.primitives;
 
 final class HuffmanCode {
 

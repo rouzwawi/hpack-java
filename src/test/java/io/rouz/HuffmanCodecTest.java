@@ -2,6 +2,9 @@ package io.rouz;
 
 import org.junit.Test;
 
+import io.rouz.primitives.HuffmanCodec;
+import io.rouz.primitives.HuffmanDecodingError;
+
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

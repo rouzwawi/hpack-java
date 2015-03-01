@@ -3,7 +3,7 @@ package io.rouz.field;
 /**
  * TODO: document.
  */
-interface HeaderName {
+public interface HeaderName {
   boolean indexed();
   int index();
   String literalName();

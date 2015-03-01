@@ -1,9 +1,13 @@
-package io.rouz.field;
+package io.rouz;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Test;
+
+import io.rouz.field.HeaderField;
+import io.rouz.field.HeaderFields;
+import io.rouz.field.HeaderName;
 
 import static io.rouz.field.HeaderField.HeaderFieldVisitor;
 import static io.rouz.field.HeaderField.IndexedName;
@@ -48,28 +52,28 @@ public class HeaderFieldTest {
     final HeaderField lix = HeaderFields.neverIndexedField(indx, "bar");
 
     assertThat(indexed.type(), is(INDEXED));
-    assertThat(lli.type(), is(LITERAL_INDEX));
-    assertThat(lii.type(), is(LITERAL_INDEX));
-    assertThat(lln.type(), is(LITERAL_NO_INDEX));
-    assertThat(lin.type(), is(LITERAL_NO_INDEX));
-    assertThat(llx.type(), is(LITERAL_NEVER_INDEX));
-    assertThat(lix.type(), is(LITERAL_NEVER_INDEX));
+    assertThat(lli.type(),     is(LITERAL_INDEX));
+    assertThat(lii.type(),     is(LITERAL_INDEX));
+    assertThat(lln.type(),     is(LITERAL_NO_INDEX));
+    assertThat(lin.type(),     is(LITERAL_NO_INDEX));
+    assertThat(llx.type(),     is(LITERAL_NEVER_INDEX));
+    assertThat(lix.type(),     is(LITERAL_NEVER_INDEX));
 
     assertThat(indexed.type().bits(), is(1));
-    assertThat(lli.type().bits(), is(2));
-    assertThat(lii.type().bits(), is(2));
-    assertThat(lln.type().bits(), is(4));
-    assertThat(lin.type().bits(), is(4));
-    assertThat(llx.type().bits(), is(4));
-    assertThat(lix.type().bits(), is(4));
+    assertThat(lli.type().bits(),     is(2));
+    assertThat(lii.type().bits(),     is(2));
+    assertThat(lln.type().bits(),     is(4));
+    assertThat(lin.type().bits(),     is(4));
+    assertThat(llx.type().bits(),     is(4));
+    assertThat(lix.type().bits(),     is(4));
 
-    assertPattern(indexed, is(true),  index(42), nullValue(), nullValue());
+    assertPattern(indexed, is(true),  index(42),   nullValue(), nullValue());
     assertPattern(lli,     is(false), nullValue(), name("foo"), value("bar"));
-    assertPattern(lii,     is(false), index(42), nullValue(), value("bar"));
+    assertPattern(lii,     is(false), index(42),   nullValue(), value("bar"));
     assertPattern(lln,     is(false), nullValue(), name("foo"), value("bar"));
-    assertPattern(lin,     is(false), index(42), nullValue(), value("bar"));
+    assertPattern(lin,     is(false), index(42),   nullValue(), value("bar"));
     assertPattern(llx,     is(false), nullValue(), name("foo"), value("bar"));
-    assertPattern(lix,     is(false), index(42), nullValue(), value("bar"));
+    assertPattern(lix,     is(false), index(42),   nullValue(), value("bar"));
   }
 
   private void assertPattern(
