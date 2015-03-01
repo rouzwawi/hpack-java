@@ -35,6 +35,14 @@ final class VarIntImpl implements VarInt {
 
   @Override
   public int encode(int x, int n, byte[] number, int p) {
+    if (x < 0) {
+      throw new IllegalArgumentException("Can't encode negative number: " + x);
+    }
+
+    if (n <= 0 || n > 8) {
+      throw new IllegalArgumentException("Prefix must be in range [1,8], was: " + n);
+    }
+
     return encodeInternal(x, (1 << n) - 1, number, p);
   }
 

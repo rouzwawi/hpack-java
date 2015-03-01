@@ -62,6 +62,26 @@ public class VarIntTest {
     }
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldThrowOnNegativeNumber() throws Exception {
+    varInt.encode(-1337, 5, new byte[8]);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldThrowOnNegativePrefix() throws Exception {
+    varInt.encode(1337, -1, new byte[8]);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldThrowOnZeroPrefix() throws Exception {
+    varInt.encode(1337, 0, new byte[8]);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldThrowOnLargePrefix() throws Exception {
+    varInt.encode(1337, 9, new byte[8]);
+  }
+
   private static void printBinary(byte[] number, int bytes) {
     for (int i = 0; i < bytes; i++) {
       printBinary(number[i]);
