@@ -1,27 +1,24 @@
 package io.rouz;
 
-import static io.rouz.VarInt.decode;
-import static io.rouz.VarInt.encode;
-
 public class HPACK {
 
   public static void main(String[] args) {
-    // touch
-    HPackString.call();
+    final VarInt varInt = VarIntImpl.INSTANCE;
+    final HuffmanString hstring = HPackStringImpl.INSTANCE;
 
     byte[] number = new byte[16];
     int bytes = 0;
-    bytes = encode(1337, 5, number, bytes);
-    bytes = encode(10, 5, number, bytes);
-    bytes = encode(42, 8, number, bytes);
-    bytes = encode(Integer.MAX_VALUE, 4, number, bytes);
+    bytes = varInt.encode(1337, 5, number, bytes);
+    bytes = varInt.encode(10, 5, number, bytes);
+    bytes = varInt.encode(42, 8, number, bytes);
+    bytes = varInt.encode(Integer.MAX_VALUE, 6, number, bytes);
 
     printBinary(number, bytes);
 
-    System.out.println("decode(5, number, 0) = " + decode(5, number, 0));
-    System.out.println("decode(5, number, 3) = " + decode(5, number, 3));
-    System.out.println("decode(8, number, 4) = " + decode(8, number, 4));
-    System.out.println("decode(4, number, 5) = " + decode(4, number, 5));
+    System.out.println("decode(5, number, 0) = " + varInt.decode(5, number, 0));
+    System.out.println("decode(5, number, 3) = " + varInt.decode(5, number, 3));
+    System.out.println("decode(8, number, 4) = " + varInt.decode(8, number, 4));
+    System.out.println("decode(4, number, 5) = " + varInt.decode(4, number, 5));
 
     System.out.println();
 
@@ -30,7 +27,7 @@ public class HPACK {
         (byte) 0x6b, (byte) 0xa0, (byte) 0xab, (byte) 0x90, (byte) 0xf4, (byte) 0xff
     };
 
-    String huffmanDecoded = HPackString.decode(huffmanEncoded);
+    String huffmanDecoded = hstring.decode(huffmanEncoded);
     System.out.println("huffmanDecoded = " + huffmanDecoded);
 
     byte[] h2 = new byte[] {
@@ -43,7 +40,7 @@ public class HPACK {
         (byte) 0x06, (byte) 0x3d, (byte) 0x50, (byte) 0x07
     };
 
-    huffmanDecoded = HPackString.decode(h2);
+    huffmanDecoded = hstring.decode(h2);
     System.out.println("huffmanDecoded = " + huffmanDecoded);
   }
 

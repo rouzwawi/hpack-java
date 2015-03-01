@@ -5,29 +5,35 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public final class HPackString {
-
-  private final byte Oxff = (byte) 0xff;
-  private final byte[] EOS = new byte[] {Oxff, Oxff, Oxff, 0x3f};
+final class HPackStringImpl implements HuffmanString {
 
   private static final String HUFFMAN_CODE_FILE = "huffman.code";
-  private static final HNode CODE_TREE = readCode();
-  private static final byte[][] CODE_WORDS = new byte[256][];
 
-  private HPackString() {
+  private static final byte Oxff = (byte) 0xff;
+  private static final byte[] EOS = new byte[] {Oxff, Oxff, Oxff, 0x3f};
+
+  private final HNode CODE_TREE = readCode();
+  private final byte[][] CODE_WORDS = new byte[256][];
+
+  private final VarInt varInt;
+
+  HPackStringImpl(final VarInt varInt) {
+    this.varInt = varInt;
   }
 
-  public static String decode(byte[] encoded) {
+  @Override
+  public String decode(byte[] encoded) {
     return decode(encoded, 0);
   }
 
-  public static String decode(byte[] encoded, int pos) {
+  @Override
+  public String decode(byte[] encoded, int pos) {
     if (encoded.length == 0 || (encoded[0] & 0x80) == 0) {
       throw new IllegalArgumentException("No bytes or not huffman encoded string");
     }
 
     HNode node = CODE_TREE;
-    final int stringLength = VarInt.decode(7, encoded, pos);
+    final int stringLength = varInt.decode(7, encoded, pos);
     int mask = 0x80;
 
     pos++;
@@ -53,7 +59,7 @@ public final class HPackString {
   }
 
   private static HNode readCode() {
-    final ClassLoader classLoader = HPackString.class.getClassLoader();
+    final ClassLoader classLoader = HPackStringImpl.class.getClassLoader();
     final InputStream codeStream = classLoader.getResourceAsStream(HUFFMAN_CODE_FILE);
     final BufferedReader in = new BufferedReader(new InputStreamReader(codeStream));
 
