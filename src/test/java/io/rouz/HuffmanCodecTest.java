@@ -7,18 +7,18 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class HuffmanStringTest {
+public class HuffmanCodecTest {
 
   private static byte[] WWW_EXAMPLE_COM = new byte[] {
       (byte) 0x8c, (byte) 0xf1, (byte) 0xe3, (byte) 0xc2, (byte) 0xe5, (byte) 0xf2, (byte) 0x3a,
       (byte) 0x6b, (byte) 0xa0, (byte) 0xab, (byte) 0x90, (byte) 0xf4, (byte) 0xff
   };
 
-  HuffmanString hstring = HuffmanString.INSTANCE;
+  HuffmanCodec hstring = HuffmanCodec.INSTANCE;
 
   @Test
   public void shouldDecodeStringsFromRFC() throws Exception {
-    String decoded = hstring.decode(WWW_EXAMPLE_COM);
+    String decoded = new String(hstring.decode(WWW_EXAMPLE_COM));
     assertThat(decoded, is("www.example.com"));
 
     // foo=...
@@ -32,15 +32,16 @@ public class HuffmanStringTest {
         (byte) 0x06, (byte) 0x3d, (byte) 0x50, (byte) 0x07
     };
 
-    decoded = hstring.decode(encoded);
+    decoded = new String(hstring.decode(encoded));
     assertThat(decoded, is("foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1"));
   }
 
   @Test
   public void shouldEncode() throws Exception {
-    String message = "www.example.com";
-    byte[] encoded = hstring.encode(message);
-    String decoded = hstring.decode(encoded);
+    final String message = "www.example.com";
+    byte[] bytes = message.getBytes("US-ASCII");
+    byte[] encoded = hstring.encode(bytes);
+    String decoded = new String(hstring.decode(encoded));
 
     assertThat(encoded, is(WWW_EXAMPLE_COM));
     assertThat(decoded, is(message));

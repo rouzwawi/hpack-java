@@ -1,9 +1,8 @@
 package io.rouz;
 
 import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
 
-final class HPackStringImpl implements HuffmanString {
+final class HPackCodecImpl implements HuffmanCodec {
 
   private final VarInt varInt;
   private final int[] codes;
@@ -11,7 +10,7 @@ final class HPackStringImpl implements HuffmanString {
 
   private final HNode treeRoot;
 
-  HPackStringImpl(final VarInt varInt, int[] codes, byte[] codeLengths) {
+  HPackCodecImpl(final VarInt varInt, int[] codes, byte[] codeLengths) {
     this.varInt = varInt;
     this.codes = codes;
     this.codeLengths = codeLengths;
@@ -20,12 +19,12 @@ final class HPackStringImpl implements HuffmanString {
   }
 
   @Override
-  public String decode(byte[] encoded) throws HuffmanDecodingError {
+  public byte[] decode(byte[] encoded) throws HuffmanDecodingError {
     return decode(encoded, 0);
   }
 
   @Override
-  public String decode(byte[] encoded, int pos) throws HuffmanDecodingError {
+  public byte[] decode(byte[] encoded, int pos) throws HuffmanDecodingError {
     if (encoded.length == 0 || (encoded[0] & 0x80) == 0) {
       throw new IllegalArgumentException("No bytes or not huffman encoded string");
     }
@@ -39,7 +38,7 @@ final class HPackStringImpl implements HuffmanString {
 
     int off = pos + 1;
 
-    final StringBuilder sb = new StringBuilder();
+    final ByteArrayOutputStream output = new ByteArrayOutputStream();
     while (off - pos - 1 < stringLength) {
       final boolean b = (encoded[off] & mask) != 0;
 
@@ -49,7 +48,7 @@ final class HPackStringImpl implements HuffmanString {
       node = b ? node.c1 : node.c0;
 
       if (node.leaf()) {
-        sb.append(node.symbol);
+        output.write(node.symbol);
         node = treeRoot;
         depth = 0;
         allOnes = true;
@@ -70,45 +69,37 @@ final class HPackStringImpl implements HuffmanString {
       throw new HuffmanDecodingError("Padding bits do not correspond to EOS");
     }
 
-    return sb.toString();
+    return output.toByteArray();
   }
 
   @Override
-  public byte[] encode(String input) {
+  public byte[] encode(byte[] input) {
     final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     // placeholder for length byte
     output.write(0);
 
-    try {
-      final byte[] bytes = input.getBytes("US-ASCII");
+    long code = 0;
+    int bits = 0;
 
-      long code = 0;
-      int bits = 0;
+    for (int i = 0; i < input.length; i++) {
+      int b = input[i] & 0xff;
 
-      for (int i = 0; i < bytes.length; i++) {
-        int b = bytes[i] & 0xff;
+      final byte len = codeLengths[b];
+      code <<= len;
+      code |= codes[b];
+      bits += len;
 
-        final byte len = codeLengths[b];
-        code <<= len;
-        code |= codes[b];
-        bits += len;
-
-        while (bits >= 8) {
-          bits -= 8;
-          output.write((int) (code >> bits));
-        }
+      while (bits >= 8) {
+        bits -= 8;
+        output.write((int) (code >> bits));
       }
+    }
 
-      if (bits > 0) {
-        code <<= 8 - bits;
-        code |= 0xff >> bits;
-        output.write((int) code);
-      }
-
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
+    if (bits > 0) {
+      code <<= 8 - bits;
+      code |= 0xff >> bits;
+      output.write((int) code);
     }
 
     final byte[] bytes = output.toByteArray();
