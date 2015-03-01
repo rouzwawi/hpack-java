@@ -22,6 +22,7 @@ public class VarIntTest {
     b4 = varInt.encode(Integer.MAX_VALUE, 6, number, b3);
 
     assertThat(b4, is(11));
+    printBinary(number, b4);
 
     byte[] expected = new byte[] {
         (byte) 0x1f, (byte) 0x9a, (byte) 0x0a, // 1337 prefix 5
@@ -59,5 +60,20 @@ public class VarIntTest {
       assertThat(xx, is(x));
       assertThat(number[0] & (~((1 << n) - 1)) & 0xFF, is(0));
     }
+  }
+
+  private static void printBinary(byte[] number, int bytes) {
+    for (int i = 0; i < bytes; i++) {
+      printBinary(number[i]);
+    }
+  }
+
+  private static void printBinary(final byte b) {
+    int mask = 0x80;
+    for (int i = 0; i < 8; i++) {
+      System.out.print((b & mask) != 0 ? '1' : '0');
+      mask >>= 1;
+    }
+    System.out.println(" | " + String.format("%02X", b).toLowerCase());
   }
 }
