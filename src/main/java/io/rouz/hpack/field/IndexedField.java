@@ -4,11 +4,12 @@ import com.google.common.base.Preconditions;
 
 import static io.rouz.hpack.field.HeaderField.IndexedName;
 
-class IndexedImpl extends AbstractHeaderFieldImpl implements IndexedName {
+final class IndexedField extends AbstractHeaderField
+    implements IndexedName {
 
   private final HeaderName name;
 
-  IndexedImpl(HeaderName name) {
+  IndexedField(HeaderName name) {
     super(HeaderFieldType.INDEXED);
 
     Preconditions.checkArgument(name.indexed(), "name is not indexed");

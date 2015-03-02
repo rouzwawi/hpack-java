@@ -37,7 +37,7 @@ public final class HeaderFields {
    * @return A {@link HeaderField}
    */
   public static HeaderField indexedField(int index) {
-    return new IndexedImpl(name(index));
+    return new IndexedField(name(index));
   }
 
   /**
@@ -86,7 +86,7 @@ public final class HeaderFields {
 
   private static HeaderField createFromName(HeaderName name, String value, HeaderFieldType type) {
     return name.indexed()
-        ? new LiteralIndexedImpl(name, value, type)
-        : new LiteralLiteralImpl(name, value, type);
+        ? new LiteralIndexedField(name, value, type)
+        : new LiteralLiteralField(name, value, type);
   }
 }

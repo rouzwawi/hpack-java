@@ -1,6 +1,6 @@
 package io.rouz.hpack.field;
 
-class IndexedHeaderName implements HeaderName {
+final class IndexedHeaderName implements HeaderName {
 
   private final int index;
 

@@ -1,6 +1,6 @@
 package io.rouz.hpack.field;
 
-class LiteralHeaderName implements HeaderName {
+final class LiteralHeaderName implements HeaderName {
 
   private final String name;
 

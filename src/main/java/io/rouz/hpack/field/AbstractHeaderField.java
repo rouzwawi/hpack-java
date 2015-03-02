@@ -1,10 +1,10 @@
 package io.rouz.hpack.field;
 
-abstract class AbstractHeaderFieldImpl implements HeaderField {
+abstract class AbstractHeaderField implements HeaderField {
 
   private final HeaderFieldType type;
 
-  AbstractHeaderFieldImpl(HeaderFieldType type) {
+  AbstractHeaderField(HeaderFieldType type) {
     this.type = type;
   }
 
