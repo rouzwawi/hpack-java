@@ -1,4 +1,4 @@
-package io.rouz.hpack.primitives;
+package io.rouz.hpack.primitive;
 
 final class VarIntImpl implements VarInt {
 

@@ -1,4 +1,4 @@
-package io.rouz.hpack.primitives;
+package io.rouz.hpack.primitive;
 
 import java.io.ByteArrayOutputStream;
 

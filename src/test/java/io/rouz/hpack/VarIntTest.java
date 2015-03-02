@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.Random;
 
-import io.rouz.hpack.primitives.VarInt;
+import io.rouz.hpack.primitive.VarInt;
 
 import static io.rouz.hpack.Util.printBinary;
 import static org.hamcrest.CoreMatchers.is;

@@ -60,11 +60,11 @@ public class HeaderFieldTest {
     assertThat(lix.type(),     is(LITERAL_NEVER_INDEX));
 
     assertThat(indexed.type().bits(), is(1));
-    assertThat(lli.type().bits(), is(2));
-    assertThat(lii.type().bits(), is(2));
-    assertThat(lln.type().bits(), is(4));
-    assertThat(lin.type().bits(), is(4));
-    assertThat(llx.type().bits(), is(4));
+    assertThat(lli.type().bits(),     is(2));
+    assertThat(lii.type().bits(),     is(2));
+    assertThat(lln.type().bits(),     is(4));
+    assertThat(lin.type().bits(),     is(4));
+    assertThat(llx.type().bits(),     is(4));
     assertThat(lix.type().bits(),     is(4));
 
     assertPattern(indexed, is(true),  index(42),   nullValue(), nullValue());
