@@ -1,9 +1,9 @@
-package io.rouz.field;
+package io.rouz.hpack.field;
 
 import com.google.common.base.Preconditions;
 
-import static io.rouz.field.HeaderField.LiteralName;
-import static io.rouz.field.HeaderField.LiteralValue;
+import static io.rouz.hpack.field.HeaderField.LiteralName;
+import static io.rouz.hpack.field.HeaderField.LiteralValue;
 
 class LiteralLiteralImpl extends AbstractHeaderFieldImpl implements LiteralName, LiteralValue {
 

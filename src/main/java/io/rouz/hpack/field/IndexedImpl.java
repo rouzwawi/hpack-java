@@ -1,8 +1,8 @@
-package io.rouz.field;
+package io.rouz.hpack.field;
 
 import com.google.common.base.Preconditions;
 
-import static io.rouz.field.HeaderField.IndexedName;
+import static io.rouz.hpack.field.HeaderField.IndexedName;
 
 class IndexedImpl extends AbstractHeaderFieldImpl implements IndexedName {
 

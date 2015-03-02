@@ -1,4 +1,4 @@
-package io.rouz.field;
+package io.rouz.hpack.field;
 
 /**
  * Representations of the MSB of the four different Header Field Representations.

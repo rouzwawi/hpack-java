@@ -1,4 +1,4 @@
-package io.rouz.field;
+package io.rouz.hpack.field;
 
 class IndexedHeaderName implements HeaderName {
 

@@ -1,10 +1,10 @@
-package io.rouz.field;
+package io.rouz.hpack.field;
 
 import com.google.common.base.Preconditions;
 
-import static io.rouz.field.HeaderFieldType.LITERAL_INDEX;
-import static io.rouz.field.HeaderFieldType.LITERAL_NEVER_INDEX;
-import static io.rouz.field.HeaderFieldType.LITERAL_NO_INDEX;
+import static io.rouz.hpack.field.HeaderFieldType.LITERAL_INDEX;
+import static io.rouz.hpack.field.HeaderFieldType.LITERAL_NEVER_INDEX;
+import static io.rouz.hpack.field.HeaderFieldType.LITERAL_NO_INDEX;
 
 public final class HeaderFields {
 

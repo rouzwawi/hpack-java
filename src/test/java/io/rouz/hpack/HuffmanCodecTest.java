@@ -1,9 +1,9 @@
-package io.rouz;
+package io.rouz.hpack;
 
 import org.junit.Test;
 
-import io.rouz.primitives.HuffmanCodec;
-import io.rouz.primitives.HuffmanDecodingError;
+import io.rouz.hpack.primitives.HuffmanCodec;
+import io.rouz.hpack.primitives.HuffmanDecodingError;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;

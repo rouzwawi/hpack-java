@@ -1,22 +1,22 @@
-package io.rouz;
+package io.rouz.hpack;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
-import io.rouz.field.HeaderField;
-import io.rouz.field.HeaderFields;
-import io.rouz.field.HeaderName;
+import io.rouz.hpack.field.HeaderField;
+import io.rouz.hpack.field.HeaderFields;
+import io.rouz.hpack.field.HeaderName;
 
-import static io.rouz.field.HeaderField.HeaderFieldVisitor;
-import static io.rouz.field.HeaderField.IndexedName;
-import static io.rouz.field.HeaderField.LiteralName;
-import static io.rouz.field.HeaderField.LiteralValue;
-import static io.rouz.field.HeaderFieldType.INDEXED;
-import static io.rouz.field.HeaderFieldType.LITERAL_INDEX;
-import static io.rouz.field.HeaderFieldType.LITERAL_NEVER_INDEX;
-import static io.rouz.field.HeaderFieldType.LITERAL_NO_INDEX;
+import static io.rouz.hpack.field.HeaderField.HeaderFieldVisitor;
+import static io.rouz.hpack.field.HeaderField.IndexedName;
+import static io.rouz.hpack.field.HeaderField.LiteralName;
+import static io.rouz.hpack.field.HeaderField.LiteralValue;
+import static io.rouz.hpack.field.HeaderFieldType.INDEXED;
+import static io.rouz.hpack.field.HeaderFieldType.LITERAL_INDEX;
+import static io.rouz.hpack.field.HeaderFieldType.LITERAL_NEVER_INDEX;
+import static io.rouz.hpack.field.HeaderFieldType.LITERAL_NO_INDEX;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -60,11 +60,11 @@ public class HeaderFieldTest {
     assertThat(lix.type(),     is(LITERAL_NEVER_INDEX));
 
     assertThat(indexed.type().bits(), is(1));
-    assertThat(lli.type().bits(),     is(2));
-    assertThat(lii.type().bits(),     is(2));
-    assertThat(lln.type().bits(),     is(4));
-    assertThat(lin.type().bits(),     is(4));
-    assertThat(llx.type().bits(),     is(4));
+    assertThat(lli.type().bits(), is(2));
+    assertThat(lii.type().bits(), is(2));
+    assertThat(lln.type().bits(), is(4));
+    assertThat(lin.type().bits(), is(4));
+    assertThat(llx.type().bits(), is(4));
     assertThat(lix.type().bits(),     is(4));
 
     assertPattern(indexed, is(true),  index(42),   nullValue(), nullValue());

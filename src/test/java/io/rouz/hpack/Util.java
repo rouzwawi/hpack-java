@@ -1,4 +1,4 @@
-package io.rouz;
+package io.rouz.hpack;
 
 public final class Util {
 

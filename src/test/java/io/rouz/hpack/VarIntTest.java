@@ -1,12 +1,12 @@
-package io.rouz;
+package io.rouz.hpack;
 
 import org.junit.Test;
 
 import java.util.Random;
 
-import io.rouz.primitives.VarInt;
+import io.rouz.hpack.primitives.VarInt;
 
-import static io.rouz.Util.printBinary;
+import static io.rouz.hpack.Util.printBinary;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 

@@ -1,4 +1,4 @@
-package io.rouz.field;
+package io.rouz.hpack.field;
 
 /**
  * An interface for instances of the binary format Header Fields Representation as described by
