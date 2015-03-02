@@ -73,7 +73,7 @@ public class HeaderFieldTest {
   }
 
   @Test
-  public void should() throws Exception {
+  public void shouldReturnIndexWithCollectors() throws Exception {
     final Optional<Integer> index = HeaderFieldCollectors.index(iii);
     assertThat(index.isPresent(), is(true));
     assertThat(index.get(), is(42));

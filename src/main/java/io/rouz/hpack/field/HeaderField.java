@@ -15,7 +15,7 @@ public interface HeaderField {
 
   HeaderFieldType type();
 
-  void visit(HeaderFieldVisitor visitor);
+  <T extends HeaderFieldVisitor> T visit(T visitor);
 
   interface IndexedName extends HeaderField {
     int index();

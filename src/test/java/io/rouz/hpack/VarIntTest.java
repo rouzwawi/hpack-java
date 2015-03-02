@@ -65,6 +65,21 @@ public class VarIntTest {
     }
   }
 
+  @Test
+  public void shouldNotChangeMSB() throws Exception {
+    int prefix = 5;
+    int msbs = 8 - prefix;
+
+    byte[] buffer = new byte[1];
+
+    for (int i = 0; i < (1 << msbs); i++) {
+      buffer[0] = (byte) i;
+
+      varInt.encode(3, prefix, buffer);
+      assertThat(buffer[0], is((byte) (0x03 | i)));
+    }
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void shouldThrowOnNegativeNumber() throws Exception {
     varInt.encode(-1337, 5, new byte[8]);

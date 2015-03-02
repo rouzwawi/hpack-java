@@ -20,9 +20,10 @@ final class LiteralIndexedField extends AbstractHeaderField
   }
 
   @Override
-  public void visit(HeaderFieldVisitor visitor) {
+  public <T extends HeaderFieldVisitor> T visit(T visitor) {
     visitor.indexedName(this, false);
     visitor.literalValue(this);
+    return visitor;
   }
 
   @Override

@@ -17,8 +17,9 @@ final class IndexedField extends AbstractHeaderField
   }
 
   @Override
-  public void visit(HeaderFieldVisitor visitor) {
+  public <T extends HeaderFieldVisitor> T visit(T visitor) {
     visitor.indexedName(this, true);
+    return visitor;
   }
 
   @Override

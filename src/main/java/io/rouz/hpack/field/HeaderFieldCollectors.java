@@ -7,9 +7,9 @@ import java.util.Optional;
  */
 public final class HeaderFieldCollectors {
 
-  public static Optional<Integer> index(HeaderField field) {
+  public static Optional<Integer> index(HeaderField headerField) {
     final CollectorVisitor collector = new CollectorVisitor();
-    field.visit(collector);
+    headerField.visit(collector);
 
     if (collector.indexedName != null) {
       return Optional.of(collector.indexedName.index());
@@ -18,9 +18,30 @@ public final class HeaderFieldCollectors {
     }
   }
 
+  public static Optional<String> name(HeaderField headerField) {
+    final CollectorVisitor collector = new CollectorVisitor();
+    headerField.visit(collector);
+
+    if (collector.literalName != null) {
+      return Optional.of(collector.literalName.name());
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  public static Optional<String> value(HeaderField headerField) {
+    final CollectorVisitor collector = new CollectorVisitor();
+    headerField.visit(collector);
+
+    if (collector.literalValue != null) {
+      return Optional.of(collector.literalValue.value());
+    } else {
+      return Optional.empty();
+    }
+  }
+
   private static class CollectorVisitor implements HeaderField.HeaderFieldVisitor {
 
-    private boolean indexedField;
     private HeaderField.IndexedName indexedName;
     private HeaderField.LiteralName literalName;
     private HeaderField.LiteralValue literalValue;
@@ -28,7 +49,6 @@ public final class HeaderFieldCollectors {
     @Override
     public void indexedName(HeaderField.IndexedName indexedName, boolean indexedField) {
       this.indexedName = indexedName;
-      this.indexedField = indexedField;
     }
 
     @Override
