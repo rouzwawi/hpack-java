@@ -33,8 +33,3 @@ buildscript {
 
 // coveralls plugin depends on xml format report
 cobertura.coverageFormats = ['html', 'xml']
-
-tasks.coveralls {
-  dependsOn 'check'
-  onlyIf { isCI }
-}
