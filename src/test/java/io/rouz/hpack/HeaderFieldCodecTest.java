@@ -2,6 +2,8 @@ package io.rouz.hpack;
 
 import org.junit.Test;
 
+import java.nio.ByteBuffer;
+
 import io.rouz.hpack.field.HeaderField;
 import io.rouz.hpack.field.HeaderFieldCodec;
 import io.rouz.hpack.field.HeaderFields;
@@ -24,7 +26,7 @@ public class HeaderFieldCodecTest {
       (byte) 0xe9, (byte) 0x5b, (byte) 0xb8, (byte) 0xe8, (byte) 0xb4, (byte) 0xbf
   };
 
-  final byte[] buffer = new byte[32];
+  final ByteBuffer buffer = ByteBuffer.allocate(32);
 
   @Test
   public void shouldEncodeIndexedField() throws Exception {
@@ -103,10 +105,10 @@ public class HeaderFieldCodecTest {
     verifyBytes(bytes, buffer, customBytes);
   }
 
-  private void verifyBytes(int len, byte[] buffer, byte[] expected) {
+  private void verifyBytes(int len, ByteBuffer buffer, byte[] expected) {
     assertThat(len, is(expected.length));
     for (int i = 0; i < expected.length; i++) {
-      assertThat("byte " + i, buffer[i], is(expected[i]));
+      assertThat("byte " + i, buffer.get(i), is(expected[i]));
     }
   }
 }
