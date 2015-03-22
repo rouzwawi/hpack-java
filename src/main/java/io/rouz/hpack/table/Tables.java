@@ -1,5 +1,8 @@
 package io.rouz.hpack.table;
 
+import io.rouz.hpack.field.HeaderField;
+import io.rouz.hpack.field.HeaderFieldRepresentation;
+
 /**
  * TODO: document.
  *
@@ -23,6 +26,14 @@ public final class Tables {
 
   public static DynamicTable dynamic(int capacity) {
     return new DynamicTable.Impl(capacity, -1);
+  }
+
+  interface EncoderTable {
+    HeaderFieldRepresentation get(HeaderField headerField);
+  }
+
+  interface DecoderTable {
+    HeaderField get(int index);
   }
 
 }

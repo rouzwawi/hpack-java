@@ -73,8 +73,12 @@ public final class StaticTable {
       HeaderField.create("www-authenticate")
   };
 
+  public static int size() {
+    return TABLE.length;
+  }
+
   public static HeaderField get(int i) {
-    if (i <= 0 || TABLE.length < i) {
+    if (i <= 0 || size() < i) {
       throw new IndexOutOfBoundsException();
     }
 
