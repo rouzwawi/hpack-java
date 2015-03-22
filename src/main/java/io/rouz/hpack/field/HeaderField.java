@@ -1,37 +1,34 @@
 package io.rouz.hpack.field;
 
 /**
- * An interface for instances of the binary format Header Fields Representation as described by
- * the HPACK RFC.
- *
- * A {@link HeaderField} can be any of the four indexed/literal types. This can be examined by
- * the {@link #type()} accessor.
- *
- * All other information exchange should happen through the utility {@link HeaderFieldVisitor}s.
- *
- * TODO: implement visitors
- */
-public interface HeaderField {
+* A struct holding the name/value pair in the dynamic and static tables.
+*/
+public class HeaderField {
+  private final String name;
+  private final String value;
 
-  HeaderFieldType type();
-
-  <T extends HeaderFieldVisitor> T visit(T visitor);
-
-  interface IndexedName extends HeaderField {
-    int index();
+  private HeaderField(String name) {
+    this(name, null);
   }
 
-  interface LiteralName extends HeaderField {
-    String name();
+  private HeaderField(String name, String value) {
+    this.name = name;
+    this.value = value;
   }
 
-  interface LiteralValue extends HeaderField {
-    String value();
+  public String name() {
+    return name;
   }
 
-  interface HeaderFieldVisitor {
-    void indexedName(IndexedName indexedName, boolean indexedField);
-    void literalName(LiteralName literalName);
-    void literalValue(LiteralValue literalValue);
+  public String value() {
+    return value;
+  }
+
+  public static HeaderField create(String name, String value) {
+    return new HeaderField(name, value);
+  }
+
+  public static HeaderField create(String name) {
+    return new HeaderField(name);
   }
 }

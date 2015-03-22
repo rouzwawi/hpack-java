@@ -19,7 +19,7 @@ public interface HeaderFieldCodec {
   public static final HeaderFieldCodec INSTANCE =
       new Impl(VarInt.INSTANCE, HuffmanCodec.INSTANCE);
 
-  int encode(HeaderField headerField, ByteBuffer buffer);
+  int encode(HeaderFieldRepresentation headerFieldRepresentation, ByteBuffer buffer);
 
   static class Impl implements HeaderFieldCodec {
 
@@ -34,22 +34,22 @@ public interface HeaderFieldCodec {
     }
 
     @Override
-    public int encode(HeaderField headerField, ByteBuffer buffer) {
-      final HeaderFieldType type = headerField.type();
+    public final int encode(HeaderFieldRepresentation headerFieldRepresentation, ByteBuffer buffer) {
+      final HeaderFieldType type = headerFieldRepresentation.type();
 
       int bytes = 0;
       buffer.put(buffer.position(), (byte) type.pattern());
 
-      final int index = index(headerField).orElse(0);
+      final int index = index(headerFieldRepresentation).orElse(0);
       bytes += varInt.encode(index, 8 - type.bits(), buffer);
 
-      final Optional<String> name = name(headerField);
+      final Optional<String> name = name(headerFieldRepresentation);
       if (name.isPresent()) {
         // TODO: option for disabling huffman encoding
         bytes += huffmanCodec.encode(name.get().getBytes(CHARSET), buffer);
       }
 
-      final Optional<String> value = value(headerField);
+      final Optional<String> value = value(headerFieldRepresentation);
       if (value.isPresent()) {
         // TODO: option for disabling huffman encoding
         bytes += huffmanCodec.encode(value.get().getBytes(CHARSET), buffer);

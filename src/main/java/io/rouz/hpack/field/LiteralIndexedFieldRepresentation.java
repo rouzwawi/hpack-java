@@ -2,16 +2,16 @@ package io.rouz.hpack.field;
 
 import com.google.common.base.Preconditions;
 
-import static io.rouz.hpack.field.HeaderField.IndexedName;
-import static io.rouz.hpack.field.HeaderField.LiteralValue;
+import static io.rouz.hpack.field.HeaderFieldRepresentation.IndexedName;
+import static io.rouz.hpack.field.HeaderFieldRepresentation.LiteralValue;
 
-final class LiteralIndexedField extends AbstractHeaderField
+final class LiteralIndexedFieldRepresentation extends AbstractHeaderFieldRepresentation
     implements IndexedName, LiteralValue {
 
   private final HeaderName name;
   private final String value;
 
-  public LiteralIndexedField(HeaderName name, String value, HeaderFieldType type) {
+  public LiteralIndexedFieldRepresentation(HeaderName name, String value, HeaderFieldType type) {
     super(type);
 
     Preconditions.checkArgument(name.indexed(), "name is not indexed");

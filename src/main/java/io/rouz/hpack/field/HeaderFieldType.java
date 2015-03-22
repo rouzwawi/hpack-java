@@ -7,7 +7,8 @@ public enum HeaderFieldType {
   INDEXED(0x80, 1),
   LITERAL_INDEX(0x40, 2),
   LITERAL_NO_INDEX(0x00, 4),
-  LITERAL_NEVER_INDEX(0x10, 4);
+  LITERAL_NEVER_INDEX(0x10, 4),
+  DYNAMIC_TABLE_SIZE(0x20, 3);
 
   private final int pattern;
   private final int bits;

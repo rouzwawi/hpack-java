@@ -7,15 +7,15 @@ import org.junit.Test;
 
 import java.util.Optional;
 
-import io.rouz.hpack.field.HeaderField;
+import io.rouz.hpack.field.HeaderFieldRepresentation;
 import io.rouz.hpack.field.HeaderFieldCollectors;
 import io.rouz.hpack.field.HeaderFields;
 import io.rouz.hpack.field.HeaderName;
 
-import static io.rouz.hpack.field.HeaderField.HeaderFieldVisitor;
-import static io.rouz.hpack.field.HeaderField.IndexedName;
-import static io.rouz.hpack.field.HeaderField.LiteralName;
-import static io.rouz.hpack.field.HeaderField.LiteralValue;
+import static io.rouz.hpack.field.HeaderFieldRepresentation.HeaderFieldVisitor;
+import static io.rouz.hpack.field.HeaderFieldRepresentation.IndexedName;
+import static io.rouz.hpack.field.HeaderFieldRepresentation.LiteralName;
+import static io.rouz.hpack.field.HeaderFieldRepresentation.LiteralValue;
 import static io.rouz.hpack.field.HeaderFieldType.INDEXED;
 import static io.rouz.hpack.field.HeaderFieldType.LITERAL_INDEX;
 import static io.rouz.hpack.field.HeaderFieldType.LITERAL_NEVER_INDEX;
@@ -27,7 +27,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-public class HeaderFieldTest {
+public class HeaderFieldRepresentationTest {
 
   final HeaderName name = HeaderFields.name("foo");
   final HeaderName indx = HeaderFields.name(42);
@@ -42,13 +42,13 @@ public class HeaderFieldTest {
    * n = not indexed
    * x = never indexed
    */
-  final HeaderField iii = HeaderFields.indexedField(42);
-  final HeaderField lli = HeaderFields.indexedField(name, "bar");
-  final HeaderField lii = HeaderFields.indexedField(indx, "bar");
-  final HeaderField lln = HeaderFields.nonIndexedField(name, "bar");
-  final HeaderField lin = HeaderFields.nonIndexedField(indx, "bar");
-  final HeaderField llx = HeaderFields.neverIndexedField(name, "bar");
-  final HeaderField lix = HeaderFields.neverIndexedField(indx, "bar");
+  final HeaderFieldRepresentation iii = HeaderFields.indexedField(42);
+  final HeaderFieldRepresentation lli = HeaderFields.indexedField(name, "bar");
+  final HeaderFieldRepresentation lii = HeaderFields.indexedField(indx, "bar");
+  final HeaderFieldRepresentation lln = HeaderFields.nonIndexedField(name, "bar");
+  final HeaderFieldRepresentation lin = HeaderFields.nonIndexedField(indx, "bar");
+  final HeaderFieldRepresentation llx = HeaderFields.neverIndexedField(name, "bar");
+  final HeaderFieldRepresentation lix = HeaderFields.neverIndexedField(indx, "bar");
 
   @Test
   public void shouldBeExpectedTypes() throws Exception {
@@ -97,7 +97,7 @@ public class HeaderFieldTest {
   }
 
   private void assertPattern(
-      HeaderField field,
+      HeaderFieldRepresentation field,
       Matcher indexedFieldMatcher, Matcher indexedNameMatcher,
       Matcher literalNameMatcher, Matcher literalValueMatcher) {
 

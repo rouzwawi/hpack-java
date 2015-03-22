@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 
-import io.rouz.hpack.field.HeaderField;
+import io.rouz.hpack.field.HeaderFieldRepresentation;
 import io.rouz.hpack.field.HeaderFieldCodec;
 import io.rouz.hpack.field.HeaderFields;
 
@@ -26,14 +26,14 @@ public class HeaderFieldCodecTest {
       (byte) 0xe9, (byte) 0x5b, (byte) 0xb8, (byte) 0xe8, (byte) 0xb4, (byte) 0xbf
   };
 
-  final ByteBuffer buffer = ByteBuffer.allocate(32);
+  final ByteBuffer buffer = ByteBuffer.allocate(64);
 
   @Test
   public void shouldEncodeIndexedField() throws Exception {
-    final HeaderField headerField =
+    final HeaderFieldRepresentation headerFieldRepresentation =
         HeaderFields.indexedField(63);
 
-    int bytes = headerFieldCodec.encode(headerField, buffer);
+    int bytes = headerFieldCodec.encode(headerFieldRepresentation, buffer);
 
     byte[] expected = new byte[] { (byte) 0xbf };
     verifyBytes(bytes, buffer, expected);
@@ -41,30 +41,44 @@ public class HeaderFieldCodecTest {
 
   @Test
   public void shouldEncodeLiteralFieldWithIndexedName() throws Exception {
-    final HeaderField headerField =
+    final HeaderFieldRepresentation headerFieldRepresentation =
         HeaderFields.indexedField(HeaderFields.name(1), "www.example.com");
 
-    int bytes = headerFieldCodec.encode(headerField, buffer);
+    int bytes = headerFieldCodec.encode(headerFieldRepresentation, buffer);
 
     verifyBytes(bytes, buffer, wwwBytes);
   }
 
   @Test
   public void shouldEncodeLiteralFieldWithLiteralName() throws Exception {
-    final HeaderField headerField =
+    final HeaderFieldRepresentation headerFieldRepresentation =
         HeaderFields.indexedField(HeaderFields.name("custom-key"), "custom-value");
 
-    int bytes = headerFieldCodec.encode(headerField, buffer);
+    int bytes = headerFieldCodec.encode(headerFieldRepresentation, buffer);
 
     verifyBytes(bytes, buffer, customBytes);
   }
 
   @Test
+  public void shouldConcatenateMultipleHeaders() throws Exception {
+    final HeaderFieldRepresentation header1 =
+        HeaderFields.indexedField(HeaderFields.name(1), "www.example.com");
+    final HeaderFieldRepresentation header2 =
+        HeaderFields.indexedField(HeaderFields.name("custom-key"), "custom-value");
+
+    int b1 = headerFieldCodec.encode(header1, buffer);
+    int b2 = headerFieldCodec.encode(header2, buffer);
+
+    verifyBytes(b1, 0, buffer, wwwBytes);
+    verifyBytes(b2, b1, buffer, customBytes);
+  }
+
+  @Test
   public void shouldEncodeNonIndexedLiteralFieldWithIndexedName() throws Exception {
-    final HeaderField headerField =
+    final HeaderFieldRepresentation headerFieldRepresentation =
         HeaderFields.nonIndexedField(HeaderFields.name(1), "www.example.com");
 
-    int bytes = headerFieldCodec.encode(headerField, buffer);
+    int bytes = headerFieldCodec.encode(headerFieldRepresentation, buffer);
 
     wwwBytes[0] &= ~0xf0;
     verifyBytes(bytes, buffer, wwwBytes);
@@ -72,10 +86,10 @@ public class HeaderFieldCodecTest {
 
   @Test
   public void shouldEncodeNonIndexedLiteralFieldWithLiteralName() throws Exception {
-    final HeaderField headerField =
+    final HeaderFieldRepresentation headerFieldRepresentation =
         HeaderFields.nonIndexedField(HeaderFields.name("custom-key"), "custom-value");
 
-    int bytes = headerFieldCodec.encode(headerField, buffer);
+    int bytes = headerFieldCodec.encode(headerFieldRepresentation, buffer);
 
     customBytes[0] &= ~0xf0;
     verifyBytes(bytes, buffer, customBytes);
@@ -83,10 +97,10 @@ public class HeaderFieldCodecTest {
 
   @Test
   public void shouldEncodeNeverIndexedLiteralFieldWithIndexedName() throws Exception {
-    final HeaderField headerField =
+    final HeaderFieldRepresentation headerFieldRepresentation =
         HeaderFields.neverIndexedField(HeaderFields.name(1), "www.example.com");
 
-    int bytes = headerFieldCodec.encode(headerField, buffer);
+    int bytes = headerFieldCodec.encode(headerFieldRepresentation, buffer);
 
     wwwBytes[0] &= ~0xe0;
     wwwBytes[0] |=  0x10;
@@ -95,10 +109,10 @@ public class HeaderFieldCodecTest {
 
   @Test
   public void shouldEncodeNeverIndexedLiteralFieldWithLiteralName() throws Exception {
-    final HeaderField headerField =
+    final HeaderFieldRepresentation headerFieldRepresentation =
         HeaderFields.neverIndexedField(HeaderFields.name("custom-key"), "custom-value");
 
-    int bytes = headerFieldCodec.encode(headerField, buffer);
+    int bytes = headerFieldCodec.encode(headerFieldRepresentation, buffer);
 
     customBytes[0] &= ~0xe0;
     customBytes[0] |=  0x10;
@@ -106,9 +120,13 @@ public class HeaderFieldCodecTest {
   }
 
   private void verifyBytes(int len, ByteBuffer buffer, byte[] expected) {
+    verifyBytes(len, 0, buffer, expected);
+  }
+
+  private void verifyBytes(int len, int offset, ByteBuffer buffer, byte[] expected) {
     assertThat(len, is(expected.length));
     for (int i = 0; i < expected.length; i++) {
-      assertThat("byte " + i, buffer.get(i), is(expected[i]));
+      assertThat("byte " + i, buffer.get(offset + i), is(expected[i]));
     }
   }
 }

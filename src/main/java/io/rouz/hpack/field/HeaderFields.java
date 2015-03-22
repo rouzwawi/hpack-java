@@ -31,23 +31,23 @@ public final class HeaderFields {
   }
 
   /**
-   * Creates a {@link HeaderField} representation of a fully indexed header field.
+   * Creates a {@link HeaderFieldRepresentation} representation of a fully indexed header field.
    *
    * @param index  The index into the static or dynamic table
-   * @return A {@link HeaderField}
+   * @return A {@link HeaderFieldRepresentation}
    */
-  public static HeaderField indexedField(int index) {
-    return new IndexedField(name(index));
+  public static HeaderFieldRepresentation indexedField(int index) {
+    return new IndexedFieldRepresentation(name(index));
   }
 
   /**
-   * Creates a literal {@link HeaderField} representation that will be indexed in the dynamic table.
+   * Creates a literal {@link HeaderFieldRepresentation} representation that will be indexed in the dynamic table.
    *
    * @param name   A {@link HeaderName} instance
    * @param value  A {@link String} value
-   * @return A {@link HeaderField}
+   * @return A {@link HeaderFieldRepresentation}
    */
-  public static HeaderField indexedField(HeaderName name, String value) {
+  public static HeaderFieldRepresentation indexedField(HeaderName name, String value) {
     Preconditions.checkNotNull(name, "name");
     Preconditions.checkNotNull(value, "value");
 
@@ -55,13 +55,13 @@ public final class HeaderFields {
   }
 
   /**
-   * Creates a literal {@link HeaderField} representation that will not alter the dynamic table.
+   * Creates a literal {@link HeaderFieldRepresentation} representation that will not alter the dynamic table.
    *
    * @param name   A {@link HeaderName} instance
    * @param value  A {@link String} value
-   * @return A {@link HeaderField}
+   * @return A {@link HeaderFieldRepresentation}
    */
-  public static HeaderField nonIndexedField(HeaderName name, String value) {
+  public static HeaderFieldRepresentation nonIndexedField(HeaderName name, String value) {
     Preconditions.checkNotNull(name, "name");
     Preconditions.checkNotNull(value, "value");
 
@@ -69,24 +69,24 @@ public final class HeaderFields {
   }
 
   /**
-   * Creates a literal {@link HeaderField} representation that will not alter the dynamic table.
+   * Creates a literal {@link HeaderFieldRepresentation} representation that will not alter the dynamic table.
    *
    * The representation must also be treated as a never indexed field by itermediaries.
    *
    * @param name   A {@link HeaderName} instance
    * @param value  A {@link String} value
-   * @return A {@link HeaderField}
+   * @return A {@link HeaderFieldRepresentation}
    */
-  public static HeaderField neverIndexedField(HeaderName name, String value) {
+  public static HeaderFieldRepresentation neverIndexedField(HeaderName name, String value) {
     Preconditions.checkNotNull(name, "name");
     Preconditions.checkNotNull(value, "value");
 
     return createFromName(name, value, LITERAL_NEVER_INDEX);
   }
 
-  private static HeaderField createFromName(HeaderName name, String value, HeaderFieldType type) {
+  private static HeaderFieldRepresentation createFromName(HeaderName name, String value, HeaderFieldType type) {
     return name.indexed()
-        ? new LiteralIndexedField(name, value, type)
-        : new LiteralLiteralField(name, value, type);
+        ? new LiteralIndexedFieldRepresentation(name, value, type)
+        : new LiteralLiteralFieldRepresentation(name, value, type);
   }
 }
