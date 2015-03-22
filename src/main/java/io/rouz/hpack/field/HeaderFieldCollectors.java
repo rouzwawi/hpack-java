@@ -7,6 +7,8 @@ import java.util.Optional;
  */
 public final class HeaderFieldCollectors {
 
+  private HeaderFieldCollectors() {}
+
   public static Optional<Integer> index(HeaderField headerField) {
     final CollectorVisitor collector = new CollectorVisitor();
     headerField.visit(collector);

@@ -20,29 +20,37 @@ final class HuffmanCodecImpl implements HuffmanCodec {
   }
 
   @Override
-  public byte[] decode(byte[] encoded) throws HuffmanDecodingError {
-    return decode(encoded, 0);
-  }
-
-  @Override
-  public byte[] decode(byte[] encoded, int pos) throws HuffmanDecodingError {
-    if (encoded.length == 0 || (encoded[0] & 0x80) == 0) {
-      throw new IllegalArgumentException("No bytes or not huffman encoded string");
+  public byte[] decode(ByteBuffer buffer) throws HuffmanDecodingError {
+    if (buffer == null) {
+      throw new NullPointerException("buffer is null");
     }
 
-    final ByteBuffer bb = ByteBuffer.wrap(encoded, pos, encoded.length - pos);
-    final int stringLength = varInt.decode(7, bb);
+    if (buffer.remaining() == 0) {
+      throw new IllegalArgumentException("No bytes remaining in buffer");
+    }
+
+    if ((buffer.get(buffer.position()) & 0x80) == 0) {
+      throw new HuffmanDecodingError("Not huffman encoded string in buffer");
+    }
+
+    final int stringLength = varInt.decode(7, buffer);
 
     HNode node = treeRoot;
-    int mask = 0x80;
+    int mask = 0;
     int depth = 0;
     boolean allOnes = true;
 
-    int off = pos + 1;
+    int readBytes = 0;
+    byte current = 0;
 
     final ByteArrayOutputStream output = new ByteArrayOutputStream();
-    while (off - pos - 1 < stringLength) {
-      final boolean b = (encoded[off] & mask) != 0;
+    do {
+      if (mask == 0) {
+        mask = 0x80;
+        current = buffer.get();
+        readBytes++;
+      }
+      final boolean b = (current & mask) != 0;
 
       depth++;
       allOnes &= b;
@@ -57,11 +65,7 @@ final class HuffmanCodecImpl implements HuffmanCodec {
       }
 
       mask >>= 1;
-      if (mask == 0) {
-        mask = 0x80;
-        off++;
-      }
-    }
+    } while (mask != 0 || readBytes < stringLength);
 
     if (depth > 7) {
       throw new HuffmanDecodingError("Padding longer than 7 bits found");
@@ -75,12 +79,20 @@ final class HuffmanCodecImpl implements HuffmanCodec {
   }
 
   @Override
-  public byte[] encode(byte[] input) {
-    final ByteArrayOutputStream output = new ByteArrayOutputStream();
+  public int encode(byte[] input, ByteBuffer buffer) {
+    if (input == null) {
+      throw new NullPointerException("input is null");
+    }
+
+    if (buffer == null) {
+      throw new NullPointerException("buffer is null");
+    }
+
+    final int initial = buffer.position();
 
     // TODO fix for multi byte sizes
-    // placeholder for length byte
-    output.write(0);
+    // placeholder for length byte, with huffman bit set, 7 bit prefix int written later
+    buffer.put((byte) 0x80);
 
     long code = 0;
     int bits = 0;
@@ -95,26 +107,25 @@ final class HuffmanCodecImpl implements HuffmanCodec {
 
       while (bits >= 8) {
         bits -= 8;
-        output.write((int) (code >> bits));
+        buffer.put((byte) ((code >> bits) & 0xff));
       }
     }
 
     if (bits > 0) {
       code <<= 8 - bits;
       code |= 0xff >> bits;
-      output.write((int) code);
+      buffer.put((byte) (code & 0xff));
     }
 
-    final byte[] bytes = output.toByteArray();
-
-    // huffman bit set
-    bytes[0] |= 0x80;
+    final int last = buffer.position();
+    final int bytesWritten = last - initial;
+    buffer.position(initial);
 
     // length
-    final ByteBuffer bb = ByteBuffer.wrap(bytes);
-    varInt.encode(bytes.length - 1, 7, bb);
+    varInt.encode(bytesWritten - 1, 7, buffer);
 
-    return bytes;
+    buffer.position(last);
+    return bytesWritten;
   }
 
   private HNode constructTree() {

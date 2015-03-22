@@ -86,6 +86,16 @@ public class HeaderFieldTest {
     assertThat(index2.get(), is(42));
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void shouldThrowOnIndexAccessOfLiteralName() throws Exception {
+    name.index();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void shouldThrowOnNameAccessOfIndexedName() throws Exception {
+    indx.literalName();
+  }
+
   private void assertPattern(
       HeaderField field,
       Matcher indexedFieldMatcher, Matcher indexedNameMatcher,

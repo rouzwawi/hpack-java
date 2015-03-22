@@ -48,17 +48,13 @@ public interface HeaderFieldCodec {
       final Optional<String> name = name(headerField);
       if (name.isPresent()) {
         // TODO: option for disabling huffman encoding
-        final byte[] encodedName = huffmanCodec.encode(name.get().getBytes(CHARSET));
-        arraycopy(encodedName, 0, buffer, pos, encodedName.length);
-        pos += encodedName.length;
+        pos += huffmanCodec.encode(name.get().getBytes(CHARSET), bb);
       }
 
       final Optional<String> value = value(headerField);
       if (value.isPresent()) {
         // TODO: option for disabling huffman encoding
-        final byte[] encodedValue = huffmanCodec.encode(value.get().getBytes(CHARSET));
-        arraycopy(encodedValue, 0, buffer, pos, encodedValue.length);
-        pos += encodedValue.length;
+        pos += huffmanCodec.encode(value.get().getBytes(CHARSET), bb);
       }
 
       return pos;

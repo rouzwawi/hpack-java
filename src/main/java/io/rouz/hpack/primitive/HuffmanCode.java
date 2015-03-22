@@ -2,8 +2,7 @@ package io.rouz.hpack.primitive;
 
 final class HuffmanCode {
 
-  private HuffmanCode() {
-  }
+  private HuffmanCode() {}
 
   static final int[] CODES = {
     0x1ff8,    0x7fffd8,  0xfffffe2,  0xfffffe3, 0xfffffe4, 0xfffffe5,  0xfffffe6,  0xfffffe7,

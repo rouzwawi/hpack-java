@@ -2,11 +2,14 @@ package io.rouz.hpack;
 
 import org.junit.Test;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import io.rouz.hpack.primitive.HuffmanCodec;
 import io.rouz.hpack.primitive.HuffmanDecodingError;
 
+import static java.nio.ByteBuffer.allocate;
+import static java.nio.ByteBuffer.wrap;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -25,7 +28,7 @@ public class HuffmanCodecTest {
 
   @Test
   public void shouldDecodeStringsFromRFC() throws Exception {
-    String decoded = new String(hstring.decode(WWW_EXAMPLE_COM));
+    String decoded = new String(hstring.decode(wrap(WWW_EXAMPLE_COM)));
     assertThat(decoded, is("www.example.com"));
 
     // foo=...
@@ -39,19 +42,99 @@ public class HuffmanCodecTest {
         (byte) 0x06, (byte) 0x3d, (byte) 0x50, (byte) 0x07
     };
 
-    decoded = new String(hstring.decode(encoded));
+    decoded = new String(hstring.decode(wrap(encoded)));
     assertThat(decoded, is("foo=ASDJKHQKBZXOQWEOPIUAXQWEOIU; max-age=3600; version=1"));
   }
 
   @Test
-  public void shouldEncode() throws Exception {
-    final String message = "www.example.com";
-    byte[] bytes = message.getBytes(CHARSET);
-    byte[] encoded = hstring.encode(bytes);
-    String decoded = new String(hstring.decode(encoded));
+  public void shouldLeaveBufferAtEndOfEncoding() throws Exception {
+    String message = "www.example.com";
 
-    assertThat(encoded, is(WWW_EXAMPLE_COM));
+    ByteBuffer buffer = allocate(32);
+    int written = hstring.encode(message.getBytes(CHARSET), buffer);
+
+    assertThat(buffer.position(), is(written));
+  }
+
+  @Test
+  public void shouldLeaveBufferAtEndOfDecoding() throws Exception {
+    ByteBuffer buffer = wrap(WWW_EXAMPLE_COM);
+    hstring.decode(buffer);
+
+    assertThat(buffer.position(), is(WWW_EXAMPLE_COM.length));
+  }
+
+  @Test
+  public void shouldDecodeEncoded() throws Exception {
+    String message = "www.example.com";
+    byte[] bytes = message.getBytes(CHARSET);
+
+    ByteBuffer buffer = allocate(WWW_EXAMPLE_COM.length);
+    int written = hstring.encode(bytes, buffer);
+
+    buffer.rewind();
+    String decoded = new String(hstring.decode(buffer));
+
+    assertThat(written, is(WWW_EXAMPLE_COM.length));
+    assertThat(buffer.array(), is(WWW_EXAMPLE_COM));
     assertThat(decoded, is(message));
+  }
+
+  @Test
+  public void shouldThrowOnNullBufferEncode() throws Exception {
+    try {
+      hstring.encode(new byte[4], null);
+      fail();
+    } catch (NullPointerException e) {
+      assertThat(e.getMessage(), containsString("buffer is null"));
+    }
+  }
+
+  @Test
+  public void shouldThrowOnNullInputEncode() throws Exception {
+    try {
+      hstring.encode(null, allocate(4));
+      fail();
+    } catch (NullPointerException e) {
+      assertThat(e.getMessage(), containsString("input is null"));
+    }
+  }
+
+  @Test
+  public void shouldThrowOnNullBufferDecode() throws Exception {
+    try {
+      hstring.decode(null);
+      fail();
+    } catch (NullPointerException e) {
+      assertThat(e.getMessage(), containsString("buffer is null"));
+    }
+  }
+
+  @Test
+  public void shouldThrowOnZeroRemainingBuffer() throws Exception {
+    ByteBuffer buffer = ByteBuffer.allocate(16);
+    buffer.position(16);
+
+    try {
+      hstring.decode(buffer);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e.getMessage(), containsString("No bytes"));
+    }
+  }
+
+  @Test
+  public void shouldThrowOnNoTHuffmanEncoded() throws Exception {
+    ByteBuffer buffer = ByteBuffer.allocate(16);
+    buffer.put((byte) 0);
+    buffer.rewind();
+
+    try {
+      hstring.decode(buffer);
+      fail();
+    } catch (HuffmanDecodingError e) {
+      assertThat(e.getMessage(), containsString("Not huffman encoded"));
+    }
   }
 
   @Test
@@ -62,7 +145,7 @@ public class HuffmanCodecTest {
     };
 
     try {
-      hstring.decode(encoded);
+      hstring.decode(wrap(encoded));
       fail();
     } catch (HuffmanDecodingError e) {
       assertThat(e.getMessage(), containsString("7 bits"));
@@ -77,7 +160,7 @@ public class HuffmanCodecTest {
     };
 
     try {
-      hstring.decode(encoded);
+      hstring.decode(wrap(encoded));
       fail();
     } catch (HuffmanDecodingError e) {
       assertThat(e.getMessage(), containsString("not correspond to EOS"));
