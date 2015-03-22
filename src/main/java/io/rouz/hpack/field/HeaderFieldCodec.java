@@ -1,5 +1,6 @@
 package io.rouz.hpack.field;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Optional;
 
@@ -41,8 +42,8 @@ public interface HeaderFieldCodec {
       buffer[pos] = (byte) type.pattern();
 
       final int index = index(headerField).orElse(0);
-      varInt.encode(index, 8 - type.bits(), buffer, pos);
-      pos++;
+      final ByteBuffer bb = ByteBuffer.wrap(buffer, pos, buffer.length - pos);
+      pos += varInt.encode(index, 8 - type.bits(), bb);
 
       final Optional<String> name = name(headerField);
       if (name.isPresent()) {

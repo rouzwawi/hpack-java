@@ -1,12 +1,18 @@
 package io.rouz.hpack;
 
+import java.nio.ByteBuffer;
+
 public final class Util {
 
   private Util() {}
 
-  public static void printBinary(byte[] number, int bytes) {
+  public static void printBinary(ByteBuffer buffer, int bytes) {
+    printBinary(buffer.array(), bytes);
+  }
+
+  public static void printBinary(byte[] buffer, int bytes) {
     for (int i = 0; i < bytes; i++) {
-      printBinary(number[i]);
+      printBinary(buffer[i]);
     }
   }
 

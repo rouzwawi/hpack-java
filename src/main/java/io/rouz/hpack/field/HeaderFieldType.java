@@ -27,7 +27,7 @@ public enum HeaderFieldType {
   }
 
   /**
-   * The number of bits used from {@link #pattern()}.
+   * The number of bits used in {@link #pattern()}.
    *
    * @return The number of bits used
    */

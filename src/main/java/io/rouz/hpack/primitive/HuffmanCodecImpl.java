@@ -1,6 +1,7 @@
 package io.rouz.hpack.primitive;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 
 final class HuffmanCodecImpl implements HuffmanCodec {
 
@@ -29,7 +30,8 @@ final class HuffmanCodecImpl implements HuffmanCodec {
       throw new IllegalArgumentException("No bytes or not huffman encoded string");
     }
 
-    final int stringLength = varInt.decode(7, encoded, pos);
+    final ByteBuffer bb = ByteBuffer.wrap(encoded, pos, encoded.length - pos);
+    final int stringLength = varInt.decode(7, bb);
 
     HNode node = treeRoot;
     int mask = 0x80;
@@ -76,6 +78,7 @@ final class HuffmanCodecImpl implements HuffmanCodec {
   public byte[] encode(byte[] input) {
     final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
+    // TODO fix for multi byte sizes
     // placeholder for length byte
     output.write(0);
 
@@ -108,7 +111,8 @@ final class HuffmanCodecImpl implements HuffmanCodec {
     bytes[0] |= 0x80;
 
     // length
-    varInt.encode(bytes.length - 1, 7, bytes);
+    final ByteBuffer bb = ByteBuffer.wrap(bytes);
+    varInt.encode(bytes.length - 1, 7, bb);
 
     return bytes;
   }
