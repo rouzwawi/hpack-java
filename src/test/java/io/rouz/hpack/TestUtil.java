@@ -1,10 +1,11 @@
 package io.rouz.hpack;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
-public final class Util {
+public final class TestUtil {
 
-  private Util() {}
+  private TestUtil() {}
 
   public static void printBinary(ByteBuffer buffer, int bytes) {
     printBinary(buffer.array(), bytes);

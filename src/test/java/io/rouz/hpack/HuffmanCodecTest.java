@@ -3,7 +3,6 @@ package io.rouz.hpack;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 import io.rouz.hpack.primitive.HuffmanCodec;
 import io.rouz.hpack.primitive.HuffmanDecodingError;
@@ -16,8 +15,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class HuffmanCodecTest {
-
-  private static final Charset CHARSET = Charset.forName("ISO-8859-1");
 
   private static byte[] WWW_EXAMPLE_COM = new byte[] {
       (byte) 0x8c, (byte) 0xf1, (byte) 0xe3, (byte) 0xc2, (byte) 0xe5, (byte) 0xf2, (byte) 0x3a,
@@ -51,7 +48,7 @@ public class HuffmanCodecTest {
     String message = "www.example.com";
 
     ByteBuffer buffer = allocate(32);
-    int written = hstring.encode(message.getBytes(CHARSET), buffer);
+    int written = hstring.encode(message.getBytes(Util.CHARSET), buffer);
 
     assertThat(buffer.position(), is(written));
   }
@@ -67,7 +64,7 @@ public class HuffmanCodecTest {
   @Test
   public void shouldDecodeEncoded() throws Exception {
     String message = "www.example.com";
-    byte[] bytes = message.getBytes(CHARSET);
+    byte[] bytes = message.getBytes(Util.CHARSET);
 
     ByteBuffer buffer = allocate(WWW_EXAMPLE_COM.length);
     int written = hstring.encode(bytes, buffer);
