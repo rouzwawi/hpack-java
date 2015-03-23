@@ -1,0 +1,4 @@
+dependencies {
+    // TODO: get rid of guava dependency
+    compile 'com.google.guava:guava:18.0'
+}

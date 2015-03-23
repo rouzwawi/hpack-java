@@ -1,2 +1,3 @@
 rootProject.name = 'hpack'
 
+include 'hpack-lib', 'hpack-bench'
