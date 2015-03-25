@@ -3,20 +3,23 @@ package io.rouz.hpack.primitive;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
-final class HuffmanCodecImpl implements HuffmanCodec {
+/**
+ * TODO: document.
+ */
+public class LookupTrieHuffmanCodec implements HuffmanCodec {
 
   private final VarInt varInt;
   private final int[] codes;
   private final byte[] codeLengths;
 
-  private final HNode treeRoot;
+  private final Node rootTable;
 
-  HuffmanCodecImpl(final VarInt varInt, int[] codes, byte[] codeLengths) {
+  LookupTrieHuffmanCodec(final VarInt varInt, int[] codes, byte[] codeLengths) {
     this.varInt = varInt;
     this.codes = codes;
     this.codeLengths = codeLengths;
 
-    treeRoot = constructTree();
+    rootTable = constructTable();
   }
 
   @Override
@@ -33,46 +36,56 @@ final class HuffmanCodecImpl implements HuffmanCodec {
       throw new HuffmanDecodingError("Not huffman encoded string in buffer");
     }
 
-    final int stringLength = varInt.decode(7, buffer);
+    final int totalBytes = varInt.decode(7, buffer);
 
-    HNode node = treeRoot;
-    int mask = 0;
-    int depth = 0;
-    boolean allOnes = true;
+    Node node = rootTable;
 
     int readBytes = 0;
-    byte current = 0;
+    int off = 0;
+    int reg = 0;
 
     final ByteArrayOutputStream output = new ByteArrayOutputStream();
-    do {
-      if (mask == 0) {
-        mask = 0x80;
-        current = buffer.get();
-        readBytes++;
+    while (readBytes < totalBytes) {
+      int b = buffer.get() & 0xff;
+      readBytes++;
+      reg = (reg << 8) | b;
+      off += 8;
+
+      while (off >= 8) {
+        node = node.children[((reg >>> (off - 8)) & 0xff)];
+
+        if (node.leaf()) {
+          output.write(node.symbol);
+          off -= node.bits;
+          node = rootTable;
+        } else {
+          off -= 8;
+        }
       }
-      final boolean b = (current & mask) != 0;
-
-      depth++;
-      allOnes &= b;
-
-      node = b ? node.c1 : node.c0;
-
-      if (node.leaf()) {
-        output.write(node.symbol);
-        node = treeRoot;
-        depth = 0;
-        allOnes = true;
-      }
-
-      mask >>= 1;
-    } while (mask != 0 || readBytes < stringLength);
-
-    if (depth > 7) {
-      throw new HuffmanDecodingError("Padding longer than 7 bits found");
     }
 
-    if (!allOnes) {
+    int tail = off;
+    while (tail > 0) {
+      reg = (reg << (8 - off));
+      node = node.children[reg & 0xff];
+
+      if (!node.leaf() || node.bits > tail) {
+        break;
+      }
+
+      output.write(node.symbol);
+      off -= node.bits - (8 - off);
+      tail -= node.bits;
+      node = rootTable;
+    }
+
+    final int mask = (0xff << (8 - tail)) & 0xff;
+    if ((reg & mask) != mask) {
       throw new HuffmanDecodingError("Padding bits do not correspond to EOS");
+    }
+
+    if (tail > 7) {
+      throw new HuffmanDecodingError("Padding longer than 7 bits found");
     }
 
     return output.toByteArray();
@@ -128,57 +141,59 @@ final class HuffmanCodecImpl implements HuffmanCodec {
     return bytesWritten;
   }
 
-  private HNode constructTree() {
-    HNode node = null;
+  private Node constructTable() {
+    Node node = new Node();
 
     for (int i = 0; i < codes.length; i++) {
-      int code = codes[i];
-      int codeLen = codeLengths[i];
+      final int code = codes[i];
+      final int codeLen = codeLengths[i];
 
-      node = insert(node, (char) i, code, codeLen, 0);
+      insert(node, i, code, codeLen);
     }
 
     return node;
   }
 
-  private static HNode insert(HNode node, char symbol, int code, int len, int pos) {
-    if (pos == len) {
-      return new HNode(symbol);
+  private static void insert(Node node, int symbol, int code, int len) {
+    if (len <= 8) {
+      final Node leaf = new Node(symbol, len);
+      final int fill = 8 - len;
+      final int octet = (code << fill) & 0xff;
+      for (int i = 0; i < (1 << fill); i++) {
+        node.children[octet | i] = leaf;
+      }
+      return;
     }
 
-    final boolean b = (code & (1 << (len - 1 - pos))) != 0;
 
-    final HNode branch =
-        node != null
-            ? b ? node.c1 : node.c0
-            : null;
-    final HNode insert = insert(branch, symbol, code, len, pos + 1);
-
-    if (b) {
-      return new HNode(node != null ? node.c0 : null, insert);
-    } else {
-      return new HNode(insert, node != null ? node.c1 : null);
+    final int octet = (code >>> (len - 8)) & 0xff;
+    if (node.children[octet] == null) {
+      node.children[octet] = new Node();
     }
+
+    insert(node.children[octet], symbol, code, len - 8);
   }
 
-  // TODO: re-implement as prefix table
-  private static final class HNode {
-    final HNode c0, c1;
-    final char symbol;
+  private static final class Node {
+    final Node[] children;
+    final int symbol;
+    final int bits;
 
-    private HNode(HNode c0, HNode c1) {
-      this.c0 = c0;
-      this.c1 = c1;
+    private Node() {
+      this.children =  new Node[256];
       this.symbol = 0;
+      this.bits = 8;
     }
 
-    private HNode(char symbol) {
-      this.c0 = this.c1 = null;
+    private Node(int symbol, int bits) {
+      this.children = null;
       this.symbol = symbol;
+      this.bits = bits;
     }
 
     boolean leaf() {
-      return c0 == null && c1 == null;
+      return children == null;
     }
   }
+
 }

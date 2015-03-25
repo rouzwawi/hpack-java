@@ -43,13 +43,12 @@ test.dependsOn(subprojects.test)
 
 // Cobertura ///////
 
-def coverageReports = subprojects.collect { project ->
-    new File(project.projectDir, '/build/cobertura/cobertura.ser')
-}
 cobertura {
     // coveralls plugin depends on xml format report
     coverageFormats = ['html', 'xml']
-    coverageMergeDatafiles = coverageReports
+    coverageMergeDatafiles = subprojects.collect {
+        new File(it.projectDir, '/build/cobertura/cobertura.ser')
+    }
 }
 
 

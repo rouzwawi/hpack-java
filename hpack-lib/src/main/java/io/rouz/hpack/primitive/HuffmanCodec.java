@@ -7,8 +7,13 @@ import java.nio.ByteBuffer;
  */
 public interface HuffmanCodec {
 
-  static final HuffmanCodec INSTANCE =
-      new HuffmanCodecImpl(VarInt.INSTANCE, HuffmanCode.CODES, HuffmanCode.CODE_LENGTHS);
+  static final HuffmanCodec NAIVE_TRIE_INSTANCE =
+      new NaiveTrieHuffmanCodec(VarInt.INSTANCE, HuffmanCode.CODES, HuffmanCode.CODE_LENGTHS);
+
+  static final HuffmanCodec LOOKUP_TRIE_INSTANCE =
+      new LookupTrieHuffmanCodec(VarInt.INSTANCE, HuffmanCode.CODES, HuffmanCode.CODE_LENGTHS);
+
+  static final HuffmanCodec INSTANCE = LOOKUP_TRIE_INSTANCE;
 
   byte[] decode(ByteBuffer buffer) throws HuffmanDecodingError;
 
